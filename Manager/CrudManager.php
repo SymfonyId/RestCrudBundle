@@ -3,11 +3,11 @@
 namespace Symfonian\Indonesia\RestCrudBundle\Manager;
 
 use Doctrine\Common\Persistence\ObjectManager;
+use JMS\Serializer\Serializer;
 use Symfonian\Indonesia\CoreBundle\Toolkit\DoctrineManager\Manager;
 use Symfonian\Indonesia\CoreBundle\Toolkit\DoctrineManager\ManagerFactory;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use JMS\Serializer\Serializer;
 
 abstract class CrudManager extends Manager
 {

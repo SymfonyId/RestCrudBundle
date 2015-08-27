@@ -2,11 +2,12 @@
 
 namespace Symfonian\Indonesia\RestCrudBundle\Controller;
 
-use FOS\RestBundle\Controller\FOSRestController as Controller;
+use FOS\RestBundle\Controller\Annotations\Delete;
+use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\Post;
 use FOS\RestBundle\Controller\Annotations\Put;
-use FOS\RestBundle\Controller\Annotations\Get;
-use FOS\RestBundle\Controller\Annotations\Delete;
+use FOS\RestBundle\Controller\FOSRestController as Controller;
+use Symfony\Component\HttpFoundation\Request;
 
 abstract class CrudController extends Controller
 {
@@ -18,7 +19,7 @@ abstract class CrudController extends Controller
      * @Get("")
      * @Get("/list", name="_get_list")
      */
-    public function listAction()
+    public function listAction(Request $request)
     {
 
     }
@@ -27,7 +28,7 @@ abstract class CrudController extends Controller
      * @Post("")
      * @Post("/new", name="_post_new")
      */
-    public function createAction()
+    public function createAction(Request $request)
     {
 
     }
@@ -36,7 +37,7 @@ abstract class CrudController extends Controller
      * @Put("/{id}")
      * @Post("/{id}/update", name="_post_update")
      */
-    public function updateAction($id)
+    public function updateAction(Request $request, $id)
     {
 
     }
@@ -45,7 +46,7 @@ abstract class CrudController extends Controller
      * @Get("/{id}")
      * @Get("/{id}/detail", name="_get_detail")
      */
-    public function detailAction($id)
+    public function detailAction(Request $request, $id)
     {
 
     }
@@ -54,7 +55,7 @@ abstract class CrudController extends Controller
      * @Delete("/{id}")
      * @Post("/{id}/delete", name="_post_delete")
      */
-    public function deleteAction($id)
+    public function deleteAction(Request $request, $id)
     {
 
     }

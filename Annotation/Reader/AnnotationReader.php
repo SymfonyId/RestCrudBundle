@@ -3,10 +3,10 @@
 namespace Symfonian\Indonesia\RestCrudBundle\Annotation\Reader;
 
 use Doctrine\Common\Annotations\Reader;
-use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
-use Symfonian\Indonesia\RestCrudBundle\Controller\CrudController;
-use Symfonian\Indonesia\RestCrudBundle\Annotation\Schema\Crud;
 use ReflectionObject;
+use Symfonian\Indonesia\RestCrudBundle\Annotation\Schema\Crud;
+use Symfonian\Indonesia\RestCrudBundle\Controller\CrudController;
+use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
 
 class AnnotationReader
 {
