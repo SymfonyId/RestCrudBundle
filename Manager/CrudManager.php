@@ -2,7 +2,42 @@
 
 namespace Symfonian\Indonesia\RestCrudBundle\Manager;
 
-class CrudManager
-{
+use Doctrine\Common\Persistence\ObjectManager;
+use Symfonian\Indonesia\CoreBundle\Toolkit\DoctrineManager\Manager;
+use Symfonian\Indonesia\CoreBundle\Toolkit\DoctrineManager\ManagerFactory;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use JMS\Serializer\Serializer;
 
+abstract class CrudManager extends Manager
+{
+    private $serializer;
+
+    private $format;
+
+    public function __construct(ManagerFactory $managerFactory, Request $request, TokenStorageInterface $tokenStorage, ObjectManager $objectManager, Serializer $serializer, $class, $format = 'json')
+    {
+        parent::__construct($managerFactory, $request, $tokenStorage, $objectManager, $class);
+        $this->serializer = $serializer;
+        $this->format = $format;
+    }
+
+    protected function isSupportedObject($object)
+    {
+        return true;
+    }
+
+    public function serialize($object)
+    {
+        $this->format = $this->request->get('_format', $this->format);
+
+        return $this->serializer->serialize($object, $this->format);
+    }
+
+    public function unserialize(array $data)
+    {
+        $this->format = $this->request->get('_format', $this->format);
+
+        $this->serializer->deserialize($data, $this->class, $this->format);
+    }
 }
