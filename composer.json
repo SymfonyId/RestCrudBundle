@@ -28,7 +28,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Symfonian\\Indonesia\\CoreBundle\\": ""
+            "Symfonian\\Indonesia\\RestCrudBundle\\": ""
         }
     },
     "preferred-install": "dist"

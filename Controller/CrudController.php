@@ -15,8 +15,8 @@ abstract class CrudController extends Controller
     protected $template;
 
     /**
-     * @Get("/")
-     * @Get("/list")
+     * @Get("")
+     * @Get("/list", name="_get_list")
      */
     public function listAction()
     {
@@ -24,8 +24,8 @@ abstract class CrudController extends Controller
     }
 
     /**
-     * @Post("/")
-     * @Post("/new")
+     * @Post("")
+     * @Post("/new", name="_post_new")
      */
     public function createAction()
     {
@@ -34,7 +34,7 @@ abstract class CrudController extends Controller
 
     /**
      * @Put("/{id}")
-     * @Post("/{id}/update")
+     * @Post("/{id}/update", name="_post_update")
      */
     public function updateAction($id)
     {
@@ -43,7 +43,7 @@ abstract class CrudController extends Controller
 
     /**
      * @Get("/{id}")
-     * @Get("/{id}/detail")
+     * @Get("/{id}/detail", name="_get_detail")
      */
     public function detailAction($id)
     {
@@ -52,7 +52,7 @@ abstract class CrudController extends Controller
 
     /**
      * @Delete("/{id}")
-     * @Post("/{id}/delete")
+     * @Post("/{id}/delete", name="_post_delete")
      */
     public function deleteAction($id)
     {
