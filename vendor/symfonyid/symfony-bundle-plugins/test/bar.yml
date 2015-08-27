@@ -1,6 +1,0 @@
-parameters:
-    bar.loaded: true
-
-services:
-    bar.boot:
-        class: Symfonian\Indonesia\BundlePlugins\Tests\BootSpy
