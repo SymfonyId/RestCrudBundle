@@ -1,0 +1,6 @@
+parameters:
+    foo.loaded: true
+
+services:
+    foo.boot:
+        class: Symfonian\Indonesia\BundlePlugins\Tests\BootSpy

@@ -1,0 +1,3 @@
+services:
+    symfonyid.core.manager_factory:
+        class: Symfonian\Indonesia\CoreBundle\Toolkit\DoctrineManager\ManagerFactory

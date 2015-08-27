@@ -1,0 +1,32 @@
+{
+    "name": "symfonyid/core-bundle",
+    "type": "symfony-bundle",
+    "description": "Provide toolkit for any project",
+    "keywords": ["toolkit", "symfony2", "bundle", "ihsanudin"],
+    "homepage": "https://github.com/SymfonyId/CoreBundle",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Komunitas Symfony Indonesia",
+            "homepage": "https://github.com/SymfonyId/CoreBundle"
+        },
+        {
+            "name": "Muhammad Surya Ihsanuddin",
+            "homepage": "https://github.com/ihsanudin"
+        }
+    ],
+    "require": {
+        "php": ">=5.4",
+        "symfony/symfony": "~2.7",
+        "doctrine/orm": "~2.2,>=2.2.3,<2.5",
+        "doctrine/dbal": "<2.5",
+        "knplabs/knp-paginator-bundle": "~2.4",
+        "symfonyid/symfony-bundle-plugins": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "Symfonian\\Indonesia\\CoreBundle\\": ""
+        }
+    },
+    "preferred-install": "dist"
+}
