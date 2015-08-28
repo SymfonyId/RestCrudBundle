@@ -24,6 +24,7 @@
         "symfonyid/core-bundle": "dev-master",
         "symfonyid/symfony-bundle-plugins": "dev-master",
         "friendsofsymfony/rest-bundle": "~1.6",
+        "nelmio/api-doc-bundle": "~2.9",
         "jms/serializer-bundle": "dev-master"
     },
     "autoload": {

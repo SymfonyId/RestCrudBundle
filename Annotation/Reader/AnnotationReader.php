@@ -15,24 +15,26 @@ class AnnotationReader
     public function __construct(Reader $reader)
     {
         $this->reader = $reader;
-    }public function onKernelController(FilterControllerEvent $event)
-{
-    $controller = $event->getController();
-    if (!is_array($controller)) {
-        return;
     }
-
-    $controller = $controller[0];
-    if (!$controller instanceof CrudController) {
-        return;
-    }
-
-    $reflectionObject = new ReflectionObject($controller);
-    foreach ($this->reader->getClassAnnotations($reflectionObject) as $annotation) {
-        if ($annotation instanceof Crud) {
-            $controller->setManager($annotation->getManager());
-            $controller->setTemplate($annotation->getTemplate());
+    public function onKernelController(FilterControllerEvent $event)
+    {
+        $controller = $event->getController();
+        if (!is_array($controller)) {
+            return;
         }
-    }
+
+        $controller = $controller[0];
+        if (!$controller instanceof CrudController) {
+            return;
+        }
+
+        $reflectionObject = new ReflectionObject($controller);
+        foreach ($this->reader->getClassAnnotations($reflectionObject) as $annotation) {
+            if ($annotation instanceof Crud) {
+                $controller->setManager($annotation->getManager());
+                $controller->setTemplate($annotation->getTemplate());
+                $controller->setForm($annotation->getForm());
+            }
+        }
 }
 }
