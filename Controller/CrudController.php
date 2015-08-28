@@ -13,20 +13,23 @@ use Symfony\Component\HttpFoundation\Request;
 
 abstract class CrudController extends Controller
 {
+    /**
+     * @var \Symfonian\Indonesia\RestCrudBundle\Manager\CrudManager
+     */
     protected $manager;
 
     protected $template;
 
-    protected $form;
+    abstract protected function getForm();
 
     /**
      * @Get("/form")
      *
      * @ApiDoc()
      */
-    public function formAction(Request $request)
+    public function formAction()
     {
-        return new JsonResponse($this->form);
+        return new JsonResponse($this->getForm());
     }
 
     /**
@@ -36,6 +39,15 @@ abstract class CrudController extends Controller
      */
     public function listAction(Request $request)
     {
+        $alias = 'o';
+        $page = $request->query->get('page', 1) - 1;
+        $limit = $request->query->get('max_record', $this->container->getParameter('symfonian_id.rest_crud.per_page'));
+        $filterUppercase = $request->query->get('normalize', false);
+
+        $queryBuilder = $this->manager->createQueryBuilder($alias);
+        $queryBuilder->addOrderBy(sprintf('%s.%s', $alias, $this->container->getParameter('symfonian_id.rest_crud.order_field')), 'DESC');
+        $filter = $filterUppercase? strtoupper($request->query->get('filter')) : $request->query->get('filter');
+
         return new JsonResponse('list');
     }
 
@@ -92,13 +104,13 @@ abstract class CrudController extends Controller
         $this->template = $template;
     }
 
-    public function setForm($form)
+    protected function getManager()
     {
-        $this->form = $form;
+        return $this->manager;
     }
 
-    protected function getForm()
+    protected function getTemplate()
     {
-        return $this->form;
+        return $this->template;
     }
 }

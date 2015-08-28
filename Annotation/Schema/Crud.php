@@ -10,8 +10,6 @@ class Crud
 {
     private $template;
 
-    private $form;
-
     private $manager;
 
     public function __construct(array $data)
@@ -23,11 +21,6 @@ class Crud
         if ($data['manager']) {
             $this->manager = $data['manager'];
         }
-
-        if ($data['form']) {
-            $this->form = $data['form'];
-        }
-
     }
 
     public function getTemplate()
@@ -38,10 +31,5 @@ class Crud
     public function getManager()
     {
         return $this->manager;
-    }
-
-    public function getForm()
-    {
-        return $this->form;
     }
 }

@@ -33,7 +33,6 @@ class AnnotationReader
             if ($annotation instanceof Crud) {
                 $controller->setManager($annotation->getManager());
                 $controller->setTemplate($annotation->getTemplate());
-                $controller->setForm($annotation->getForm());
             }
         }
 }
