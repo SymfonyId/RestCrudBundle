@@ -46,7 +46,12 @@ abstract class CrudController extends Controller
 
         $queryBuilder = $this->manager->createQueryBuilder($alias);
         $queryBuilder->addOrderBy(sprintf('%s.%s', $alias, $this->container->getParameter('symfonian_id.rest_crud.order_field')), 'DESC');
-        $filter = $filterUppercase? strtoupper($request->query->get('filter')) : $request->query->get('filter');
+        $filter = $request->query->get('filter', array());
+
+        foreach ($filter as $key => $value) {
+            $queryBuilder->orWhere(sprintf('%s.%s LIKE ?%d', $alias, $key, $key));
+            $queryBuilder->setParameter($key, sprintf('%%s%', $filterUppercase? strtoupper($value): $value));
+        }
 
         return new JsonResponse('list');
     }
