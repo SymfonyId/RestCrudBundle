@@ -7,7 +7,10 @@ use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\Post;
 use FOS\RestBundle\Controller\Annotations\Put;
 use FOS\RestBundle\Controller\FOSRestController as Controller;
+use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
+use Symfonian\Indonesia\RestCrudBundle\Event\FilterQueryEvent;
+use Symfonian\Indonesia\RestCrudBundle\SymfonianIndonesiaRestCrudEvents as Event;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -45,15 +48,41 @@ abstract class CrudController extends Controller
         $filterUppercase = $request->query->get('normalize', false);
 
         $queryBuilder = $this->manager->createQueryBuilder($alias);
-        $queryBuilder->addOrderBy(sprintf('%s.%s', $alias, $this->container->getParameter('symfonian_id.rest_crud.order_field')), 'DESC');
-        $filter = $request->query->get('filter', array());
 
+        $orderBy = $this->container->getParameter('symfonian_id.rest_crud.order_fields');
+        foreach ($orderBy as $order) {
+            $queryBuilder->addOrderBy(sprintf('%s.%s', $alias, $order['field']), $order['order']);
+        }
+
+        $filter = $request->query->get('filter', array());
         foreach ($filter as $key => $value) {
             $queryBuilder->orWhere(sprintf('%s.%s LIKE ?%d', $alias, $key, $key));
             $queryBuilder->setParameter($key, sprintf('%%s%', $filterUppercase? strtoupper($value): $value));
         }
 
-        return new JsonResponse('list');
+        $event = new FilterQueryEvent();
+        $event->setQueryBuilder($queryBuilder);
+        $event->setAlias($alias);
+        $this->fireEvent(Event::FILTER_LIST, $event);
+
+        $paginator = $this->container->get('knp_paginator');
+        $query = $this->manager->getQuery($queryBuilder, true, 1);
+        $pagination = $paginator->paginate($query, $page, $limit);
+
+        $currentPage = $pagination->getCurrentPageNumber();
+
+        $output = array(
+            'current' => $currentPage,
+            'previous' => $currentPage - 1,
+            'next' => $currentPage + 1,
+            'records' => $this->manager->serialize($pagination->getItems()),
+        );
+
+        $view = new View();
+        $view->setData($output);
+        $view->setStatusCode(200);
+
+        return $this->handleView($view);
     }
 
     /**
@@ -117,5 +146,11 @@ abstract class CrudController extends Controller
     protected function getTemplate()
     {
         return $this->template;
+    }
+
+    protected function fireEvent($name, $handler)
+    {
+        $dispatcher = $this->container->get('event_dispatcher');
+        $dispatcher->dispatch($name, $handler);
     }
 }

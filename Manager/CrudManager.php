@@ -22,11 +22,6 @@ abstract class CrudManager extends Manager
         $this->format = $format;
     }
 
-    protected function isSupportedObject($object)
-    {
-        return true;
-    }
-
     public function serialize($object)
     {
         $this->format = $this->request->get('_format', $this->format);
@@ -39,5 +34,10 @@ abstract class CrudManager extends Manager
         $this->format = $this->request->get('_format', $this->format);
 
         $this->serializer->deserialize($data, $this->class, $this->format);
+    }
+
+    protected function isSupportedObject($object)
+    {
+        return true;
     }
 }

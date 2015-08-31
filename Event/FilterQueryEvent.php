@@ -8,8 +8,6 @@ final class FilterQueryEvent
 {
     private $queryBuilder;
 
-    private $entity;
-
     private $alias;
 
     /**
@@ -26,22 +24,6 @@ final class FilterQueryEvent
     public function getQueryBuilder()
     {
         return $this->queryBuilder;
-    }
-
-    /**
-     * @param string $entity
-     */
-    public function setEntity($entity)
-    {
-        $this->entity = $entity;
-    }
-
-    /**
-     * @return string
-     */
-    public function getEntity()
-    {
-        return $this->entity;
     }
 
     /**
