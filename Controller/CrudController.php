@@ -2,6 +2,7 @@
 
 namespace Symfonian\Indonesia\RestCrudBundle\Controller;
 
+use Doctrine\ORM\QueryBuilder;
 use FOS\RestBundle\Controller\Annotations\Delete;
 use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\Post;
@@ -44,12 +45,12 @@ abstract class CrudController extends Controller
     {
         $alias = 'o';
         $page = $request->query->get('page', 1) - 1;
-        $limit = $request->query->get('max_record', $this->container->getParameter('symfonian_id.rest_crud.per_page'));
+        $limit = $request->query->get('max_record', 10);
         $filterUppercase = $request->query->get('normalize', false);
 
-        $queryBuilder = $this->manager->createQueryBuilder($alias);
+        $queryBuilder = $this->getManager()->createQueryBuilder($alias);
 
-        $orderBy = $this->container->getParameter('symfonian_id.rest_crud.order_fields');
+        $orderBy = array(array('field' => 'id'));
         foreach ($orderBy as $order) {
             $queryBuilder->addOrderBy(sprintf('%s.%s', $alias, $order['field']), $order['order']);
         }
@@ -65,24 +66,17 @@ abstract class CrudController extends Controller
         $event->setAlias($alias);
         $this->fireEvent(Event::FILTER_LIST, $event);
 
-        $paginator = $this->container->get('knp_paginator');
-        $query = $this->manager->getQuery($queryBuilder, true, 1);
-        $pagination = $paginator->paginate($query, $page, $limit);
-
+        $pagination = $this->paginate($queryBuilder, $page, $limit);
         $currentPage = $pagination->getCurrentPageNumber();
 
         $output = array(
             'current' => $currentPage,
             'previous' => $currentPage - 1,
             'next' => $currentPage + 1,
-            'records' => $this->manager->serialize($pagination->getItems()),
+            'records' => $this->getManager()->serialize($pagination->getItems()),
         );
 
-        $view = new View();
-        $view->setData($output);
-        $view->setStatusCode(200);
-
-        return $this->handleView($view);
+        return $this->handleView(View::create($output));
     }
 
     /**
@@ -140,12 +134,30 @@ abstract class CrudController extends Controller
 
     protected function getManager()
     {
+        if (! $this->manager) {
+            throw new \RuntimeException('You must override `getManager()` on Controller or use Crud annotation to define the manager.');
+        }
+
         return $this->manager;
     }
 
     protected function getTemplate()
     {
         return $this->template;
+    }
+
+    /**
+     * @param QueryBuilder $queryBuilder
+     * @param $page
+     * @param $limit
+     * @return \Knp\Component\Pager\Pagination\AbstractPagination
+     */
+    protected function paginate(QueryBuilder $queryBuilder, $page, $limit)
+    {
+        $paginator = $this->container->get('knp_paginator');
+        $query = $this->getManager()->getQuery($queryBuilder, true, 1);
+
+        return $paginator->paginate($query, $page, $limit);
     }
 
     protected function fireEvent($name, $handler)
