@@ -8,7 +8,6 @@ class RequestFormatListener
 {
     public function onKernelRequest(GetResponseEvent $event)
     {
-        exit();
         if (!$event->isMasterRequest()) {
             return;
         }
