@@ -12,7 +12,6 @@ use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Symfonian\Indonesia\RestCrudBundle\Event\FilterQueryEvent;
 use Symfonian\Indonesia\RestCrudBundle\SymfonianIndonesiaRestCrudEvents as Event;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 abstract class CrudController extends Controller
@@ -39,18 +38,25 @@ abstract class CrudController extends Controller
     /**
      * @Get("")
      *
-     * @ApiDoc()
+     * @ApiDoc(
+     *      filters={
+     *          {"name"="page", "dataType"="integer", "description"="Page number"},
+     *          {"name"="max_record", "dataType"="integer", "description"="Max result per page"},
+     *          {"name"="filter", "dataType"="array", "description"="Format: filter[field1]=value1&filter[field2]=value2"},
+     *          {"name"="normalize", "dataType"="boolean", "description"="0 = false; 1 = true"}
+     *      }
+     * )
      */
     public function listAction(Request $request)
     {
         $alias = 'o';
-        $page = $request->query->get('page', 1) - 1;
+        $page = $request->query->get('page', 1);
         $limit = $request->query->get('max_record', 10);
-        $filterUppercase = $request->query->get('normalize', false);
+        $filterUppercase = $request->query->get('normalize', 0);
 
         $queryBuilder = $this->getManager()->createQueryBuilder($alias);
 
-        $orderBy = array(array('field' => 'id'));
+        $orderBy = array(array('field' => 'id', 'order' => 'asc'));
         foreach ($orderBy as $order) {
             $queryBuilder->addOrderBy(sprintf('%s.%s', $alias, $order['field']), $order['order']);
         }
@@ -68,11 +74,13 @@ abstract class CrudController extends Controller
 
         $pagination = $this->paginate($queryBuilder, $page, $limit);
         $currentPage = $pagination->getCurrentPageNumber();
+        $previous = 1 === $currentPage? 1: $currentPage - 1;
+        $next = $pagination->getTotalItemCount() > ($limit * $page) ? $currentPage + 1: $currentPage;
 
         $output = array(
             'current' => $currentPage,
-            'previous' => $currentPage - 1,
-            'next' => $currentPage + 1,
+            'previous' => $previous,
+            'next' => $next,
             'records' => $this->getManager()->serialize($pagination->getItems()),
         );
 

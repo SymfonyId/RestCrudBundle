@@ -5,3 +5,8 @@ services:
             - @annotation_reader
         tags:
             - { name: kernel.event_listener, event: kernel.controller, method: onKernelController, priority: -255 }
+
+    kernel.listener.request_format:
+        class: Symfonian\Indonesia\RestCrudBundle\EventListener\RequestFormatListener
+        tags:
+            - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest }

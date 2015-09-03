@@ -3,6 +3,7 @@
 namespace Symfonian\Indonesia\RestCrudBundle\Manager;
 
 use Doctrine\Common\Persistence\ObjectManager;
+use JMS\Serializer\SerializationContext;
 use JMS\Serializer\Serializer;
 use Symfonian\Indonesia\CoreBundle\Toolkit\DoctrineManager\Manager;
 use Symfonian\Indonesia\CoreBundle\Toolkit\DoctrineManager\ManagerFactory;
@@ -24,9 +25,11 @@ abstract class CrudManager extends Manager
 
     public function serialize($object)
     {
-        $this->format = $this->request->get('_format', $this->format);
+        $this->format = $this->request->getRequestFormat();
+        $context = new SerializationContext();
+        $context->setSerializeNull(true);
 
-        return $this->serializer->serialize($object, $this->format);
+        return $this->serializer->serialize($object, $this->format, $context);
     }
 
     public function unserialize(array $data)

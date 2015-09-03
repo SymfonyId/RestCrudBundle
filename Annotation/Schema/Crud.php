@@ -14,11 +14,11 @@ class Crud
 
     public function __construct(array $data)
     {
-        if ($data['template']) {
+        if (isset($data['template'])) {
             $this->template = $data['template'];
         }
 
-        if ($data['manager']) {
+        if (isset($data['manager'])) {
             $this->manager = $data['manager'];
         }
     }
