@@ -13,6 +13,8 @@ use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Symfonian\Indonesia\RestCrudBundle\Event\FilterQueryEvent;
 use Symfonian\Indonesia\RestCrudBundle\SymfonianIndonesiaRestCrudEvents as Event;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 abstract class CrudController extends Controller
 {
@@ -32,7 +34,7 @@ abstract class CrudController extends Controller
      */
     public function formAction()
     {
-        return new JsonResponse($this->getForm());
+        return $this->handleView(View::create($this->getForm()));
     }
 
     /**
@@ -125,9 +127,18 @@ abstract class CrudController extends Controller
      *
      * @ApiDoc()
      */
-    public function deleteAction(Request $request, $id)
+    public function deleteAction($id)
     {
-        return new JsonResponse('delete');
+        $manager = $this->getManager();
+        $entity = $manager->find($id);
+
+        if (!$entity) {
+            throw new NotFoundHttpException(sprintf('Record with id %s not found', $id));
+        }
+        
+        $manager->delete($entity);
+
+        return $this->handleView(View::create(null, Response::HTTP_NO_CONTENT));
     }
 
     public function setManager($manager)
