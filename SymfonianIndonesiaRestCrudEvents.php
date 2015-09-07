@@ -10,5 +10,7 @@ class SymfonianIndonesiaRestCrudEvents
 
     const FILTER_FORM = 'symfonyid.filter.form';
 
-    const FILTER_PRE_VALIDATION = 'symfonyid.filter.pre_validation';
+    const FILTER_VALIDATION = 'symfonyid.filter.validation';
+
+    const FILTER_PERSIST = 'symfonyid.filter.persist';
 }

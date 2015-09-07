@@ -4,9 +4,9 @@ namespace Symfonian\Indonesia\RestCrudBundle\Event;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfonian\Indonesia\RestCrudBundle\Controller\CrudController;
+use Symfony\Component\EventDispatcher\Event;
 
-class FilterRequestEvent
+class FilterRequestEvent extends Event
 {
     private $request;
 

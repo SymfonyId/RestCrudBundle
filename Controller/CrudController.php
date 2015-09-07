@@ -11,6 +11,7 @@ use FOS\RestBundle\Controller\FOSRestController as Controller;
 use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Symfonian\Indonesia\RestCrudBundle\Event\FilterFormEvent;
+use Symfonian\Indonesia\RestCrudBundle\Event\FilterPersistEvent;
 use Symfonian\Indonesia\RestCrudBundle\Event\FilterQueryEvent;
 use Symfonian\Indonesia\RestCrudBundle\Event\FilterRequestEvent;
 use Symfonian\Indonesia\RestCrudBundle\Event\FilterValidationEvent;
@@ -135,7 +136,7 @@ abstract class CrudController extends Controller
         $validationEvent->setForm($formEvent->getForm());
         $validationEvent->setData($formEvent->getData());
 
-        $this->fireEvent(Event::FILTER_PRE_VALIDATION, $validationEvent);
+        $this->fireEvent(Event::FILTER_VALIDATION, $validationEvent);
 
         $response = $validationEvent->getResponse();
         if ($response) {
@@ -152,7 +153,19 @@ abstract class CrudController extends Controller
             return $this->handleView($view);
         }
 
-        //@todo
+        $entity = $form->getData();
+        $this->getManager()->save($entity);
+
+        $persistEvent = new FilterPersistEvent();
+        $persistEvent->setEntity($entity);
+        $persistEvent->setManager($this->getManager());
+        $persistEvent->setRequest($request);
+
+        $this->fireEvent(Event::FILTER_PERSIST, $persistEvent);
+
+        $view->setData($persistEvent->getEntity());
+
+        return $this->handleView($view);
     }
 
     /**

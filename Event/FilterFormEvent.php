@@ -3,8 +3,9 @@
 namespace Symfonian\Indonesia\RestCrudBundle\Event;
 
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\EventDispatcher\Event;
 
-class FilterFormEvent
+class FilterFormEvent extends Event
 {
     protected $form;
 
