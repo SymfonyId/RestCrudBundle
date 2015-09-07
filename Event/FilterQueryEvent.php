@@ -3,8 +3,9 @@
 namespace Symfonian\Indonesia\RestCrudBundle\Event;
 
 use Doctrine\ORM\QueryBuilder;
+use Symfony\Component\EventDispatcher\Event;
 
-final class FilterQueryEvent
+final class FilterQueryEvent extends Event
 {
     private $queryBuilder;
 

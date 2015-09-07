@@ -10,10 +10,12 @@ use FOS\RestBundle\Controller\Annotations\Put;
 use FOS\RestBundle\Controller\FOSRestController as Controller;
 use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
+use Symfonian\Indonesia\RestCrudBundle\Event\FilterFormEvent;
 use Symfonian\Indonesia\RestCrudBundle\Event\FilterQueryEvent;
+use Symfonian\Indonesia\RestCrudBundle\Event\FilterRequestEvent;
+use Symfonian\Indonesia\RestCrudBundle\Event\FilterValidationEvent;
 use Symfonian\Indonesia\RestCrudBundle\SymfonianIndonesiaRestCrudEvents as Event;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 abstract class CrudController extends Controller
@@ -44,7 +46,7 @@ abstract class CrudController extends Controller
      *      filters={
      *          {"name"="page", "dataType"="integer", "description"="Page number"},
      *          {"name"="max_record", "dataType"="integer", "description"="Max result per page"},
-     *          {"name"="filter", "dataType"="array", "description"="Format: filter[field1]=value1&filter[field2]=value2"},
+     *          {"name"="filter", "dataType"="array", "description"="Format: filter[field1]=value1de/&filter[field2]=value2"},
      *          {"name"="normalize", "dataType"="boolean", "description"="0 = false; 1 = true"}
      *      }
      * )
@@ -74,7 +76,7 @@ abstract class CrudController extends Controller
         $event->setAlias($alias);
         $this->fireEvent(Event::FILTER_LIST, $event);
 
-        $pagination = $this->paginate($queryBuilder, $page, $limit);
+        $pagination = $this->paginate($event->getQueryBuilder(), $page, $limit);
         $currentPage = $pagination->getCurrentPageNumber();
         $previous = 1 === $currentPage? 1: $currentPage - 1;
         $next = $pagination->getTotalItemCount() > ($limit * $page) ? $currentPage + 1: $currentPage;
@@ -107,7 +109,50 @@ abstract class CrudController extends Controller
      */
     public function createAction(Request $request)
     {
-        return new JsonResponse('create');
+        $requestEvent = new FilterRequestEvent();
+        $requestEvent->setRequest($request);
+        $requestEvent->setController($this);
+
+        $this->fireEvent(Event::FILTER_REQUEST, $requestEvent);
+
+        $response = $requestEvent->getResponse();
+        if ($response) {
+            return $response;
+        }
+
+        $formEvent = new FilterFormEvent();
+        $formEvent->setForm($this->getForm());
+
+        $this->fireEvent(Event::FILTER_FORM, $formEvent);
+
+        $formData = $formEvent->getData();
+        if (!$formData) {
+            $formData = $this->getManager()->createNew();
+            $formEvent->setData($formData);
+        }
+
+        $validationEvent = new FilterValidationEvent();
+        $validationEvent->setForm($formEvent->getForm());
+        $validationEvent->setData($formEvent->getData());
+
+        $this->fireEvent(Event::FILTER_PRE_VALIDATION, $validationEvent);
+
+        $response = $validationEvent->getResponse();
+        if ($response) {
+            return $response;
+        }
+
+        $form = $validationEvent->getForm();
+        $form->handleRequest($requestEvent->getRequest());
+
+        $view = new View();
+        if (!$form->isValid()) {
+            $view->setData($form->getErrors());
+
+            return $this->handleView($view);
+        }
+
+        //@todo
     }
 
     /**
@@ -135,7 +180,6 @@ abstract class CrudController extends Controller
         if (!$entity) {
             throw new NotFoundHttpException(sprintf('Record with id %s not found', $id));
         }
-        
         $manager->delete($entity);
 
         return $this->handleView(View::create(null, Response::HTTP_NO_CONTENT));
