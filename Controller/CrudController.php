@@ -52,7 +52,7 @@ abstract class CrudController extends Controller
      *      filters={
      *          {"name"="page", "dataType"="integer", "description"="Page number"},
      *          {"name"="max_record", "dataType"="integer", "description"="Max result per page"},
-     *          {"name"="filter", "dataType"="array", "description"="Format: filter[field1]=value1de/&filter[field2]=value2"},
+     *          {"name"="filter", "dataType"="array", "description"="Format: filter[field1]=value1&filter[field2]=value2"},
      *          {"name"="normalize", "dataType"="boolean", "description"="0 = false; 1 = true"}
      *      }
      * )
