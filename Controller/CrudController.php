@@ -10,6 +10,7 @@ use FOS\RestBundle\Controller\Annotations\Put;
 use FOS\RestBundle\Controller\FOSRestController as Controller;
 use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
+use Symfonian\Indonesia\CoreBundle\Toolkit\DoctrineManager\Model\EntityInterface;
 use Symfonian\Indonesia\RestCrudBundle\Event\FilterFormEvent;
 use Symfonian\Indonesia\RestCrudBundle\Event\FilterPersistEvent;
 use Symfonian\Indonesia\RestCrudBundle\Event\FilterQueryEvent;
@@ -17,6 +18,7 @@ use Symfonian\Indonesia\RestCrudBundle\Event\FilterRequestEvent;
 use Symfonian\Indonesia\RestCrudBundle\Event\FilterValidationEvent;
 use Symfonian\Indonesia\RestCrudBundle\SymfonianIndonesiaRestCrudEvents as Event;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 abstract class CrudController extends Controller
@@ -100,9 +102,9 @@ abstract class CrudController extends Controller
      *
      * @ApiDoc()
      */
-    public function detailAction(Request $request, $id)
+    public function detailAction($id)
     {
-        return new JsonResponse('detail');
+        return $this->handleView(View::create($this->findOr404Error($id)));
     }
 
     /**
@@ -113,62 +115,7 @@ abstract class CrudController extends Controller
      */
     public function createAction(Request $request)
     {
-        $requestEvent = new FilterRequestEvent();
-        $requestEvent->setRequest($request);
-        $requestEvent->setController($this);
-
-        $this->fireEvent(Event::FILTER_REQUEST, $requestEvent);
-
-        $response = $requestEvent->getResponse();
-        if ($response) {
-            return $response;
-        }
-
-        $formEvent = new FilterFormEvent();
-        $formEvent->setForm($this->getForm());
-
-        $this->fireEvent(Event::FILTER_FORM, $formEvent);
-
-        $formData = $formEvent->getData();
-        if (!$formData) {
-            $formData = $this->getManager()->createNew();
-            $formEvent->setData($formData);
-        }
-
-        $validationEvent = new FilterValidationEvent();
-        $validationEvent->setForm($formEvent->getForm());
-        $validationEvent->setData($formEvent->getData());
-
-        $this->fireEvent(Event::FILTER_VALIDATION, $validationEvent);
-
-        $response = $validationEvent->getResponse();
-        if ($response) {
-            return $response;
-        }
-
-        $form = $validationEvent->getForm();
-        $form->handleRequest($requestEvent->getRequest());
-
-        $view = new View();
-        if (!$form->isValid()) {
-            $view->setData($form->getErrors());
-
-            return $this->handleView($view);
-        }
-
-        $entity = $form->getData();
-        $this->getManager()->save($entity);
-
-        $persistEvent = new FilterPersistEvent();
-        $persistEvent->setEntity($entity);
-        $persistEvent->setManager($this->getManager());
-        $persistEvent->setRequest($request);
-
-        $this->fireEvent(Event::FILTER_PERSIST, $persistEvent);
-
-        $view->setData($persistEvent->getEntity());
-
-        return $this->handleView($view);
+        return $this->createOrUpdate($this->getManager()->createNew(), $request);
     }
 
     /**
@@ -179,7 +126,7 @@ abstract class CrudController extends Controller
      */
     public function updateAction(Request $request, $id)
     {
-        return new JsonResponse('update');
+        return $this->createOrUpdate($this->findOr404Error($id), $request);
     }
 
     /**
@@ -190,13 +137,7 @@ abstract class CrudController extends Controller
      */
     public function deleteAction($id)
     {
-        $manager = $this->getManager();
-        $entity = $manager->find($id);
-
-        if (!$entity) {
-            throw new NotFoundHttpException(sprintf('Record with id %s not found', $id));
-        }
-        $manager->delete($entity);
+        $this->getManager()->delete($this->findOr404Error($id));
 
         return $this->handleView(View::create(null, Response::HTTP_NO_CONTENT));
     }
@@ -243,5 +184,74 @@ abstract class CrudController extends Controller
     {
         $dispatcher = $this->container->get('event_dispatcher');
         $dispatcher->dispatch($name, $handler);
+    }
+
+    protected function findOr404Error($id)
+    {
+        $entity = $this->getManager()->find($id);
+        if (!$entity) {
+            throw new NotFoundHttpException(sprintf('Entity with id %d not found.', $id));
+        }
+
+        return $entity;
+    }
+
+    protected function createOrUpdate(EntityInterface $entity, Request $request)
+    {
+        $requestEvent = new FilterRequestEvent();
+        $requestEvent->setRequest($request);
+        $requestEvent->setController($this);
+
+        $this->fireEvent(Event::FILTER_REQUEST, $requestEvent);
+
+        $response = $requestEvent->getResponse();
+        if ($response) {
+            return $response;
+        }
+
+        $formEvent = new FilterFormEvent();
+        $formEvent->setForm($this->getForm());
+
+        $this->fireEvent(Event::FILTER_FORM, $formEvent);
+
+        $formData = $formEvent->getData();
+        if (!$formData) {
+            $formData = $this->getManager()->createNew();
+            $formEvent->setData($formData);
+        }
+
+        $validationEvent = new FilterValidationEvent();
+        $validationEvent->setForm($formEvent->getForm());
+        $validationEvent->setData($formEvent->getData());
+
+        $this->fireEvent(Event::FILTER_VALIDATION, $validationEvent);
+
+        $response = $validationEvent->getResponse();
+        if ($response) {
+            return $response;
+        }
+
+        $form = $validationEvent->getForm();
+        $form->handleRequest($requestEvent->getRequest());
+
+        $view = new View();
+        if (!$form->isValid()) {
+            $view->setData($form->getErrors());
+
+            return $this->handleView($view);
+        }
+
+        $this->getManager()->save($entity, $form->getData());
+
+        $persistEvent = new FilterPersistEvent();
+        $persistEvent->setEntity($entity);
+        $persistEvent->setManager($this->getManager());
+        $persistEvent->setRequest($request);
+
+        $this->fireEvent(Event::FILTER_PERSIST, $persistEvent);
+
+        $view->setData($persistEvent->getEntity());
+
+        return $this->handleView($view);
     }
 }
