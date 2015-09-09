@@ -28,6 +28,9 @@ abstract class CrudController extends Controller
 
     protected $template;
 
+    /**
+     * @return \Symfonian\Indonesia\RestCrudBundle\Form\FormInterface
+     */
     abstract protected function getForm();
 
     /**

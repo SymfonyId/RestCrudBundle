@@ -2,7 +2,7 @@
 
 namespace Symfonian\Indonesia\RestCrudBundle\Event;
 
-use Symfony\Component\Form\FormInterface;
+use Symfonian\Indonesia\RestCrudBundle\Form\FormInterface;
 use Symfony\Component\EventDispatcher\Event;
 
 class FilterFormEvent extends Event
