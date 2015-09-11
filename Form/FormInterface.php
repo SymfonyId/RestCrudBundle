@@ -10,9 +10,7 @@ interface FormInterface
 {
     public function toArray();
 
-    public function addField($name, $type, $description = '');
-
-    public function addFields(array $fields);
+    public function configure();
 
     public function setValidator(ValidatorInterface $validator);
 

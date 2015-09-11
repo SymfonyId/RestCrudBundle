@@ -8,7 +8,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 abstract class Form implements FormInterface
 {
-    protected $fields;
+    protected $fields = array();
 
     protected $data;
 
@@ -24,6 +24,11 @@ abstract class Form implements FormInterface
      */
     protected $constraints;
 
+    public function __construct()
+    {
+        $this->configure();
+    }
+
     public function toArray()
     {
         $output = array();
@@ -38,12 +43,12 @@ abstract class Form implements FormInterface
         return array($this->getName() => $output);
     }
 
-    public function addField($name, $type = 'string', $description = '')
+    protected function addField($name, $type = 'string', $description = '')
     {
         $this->fields[$name] = array($name, $type, $description);
     }
 
-    public function addFields(array $fields)
+    protected function addFields(array $fields)
     {
         foreach ($fields as $field) {
             $this->addField($field['name'], isset($field['type'])?: 'string', isset($field['description'])?: '');

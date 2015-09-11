@@ -42,7 +42,7 @@ abstract class CrudController extends Controller
      */
     public function formAction()
     {
-        return $this->handleView(View::create($this->getForm()));
+        return $this->handleView(View::create($this->getForm()->toArray()));
     }
 
     /**
@@ -73,8 +73,8 @@ abstract class CrudController extends Controller
 
         $filter = $request->query->get('filter', array());
         foreach ($filter as $key => $value) {
-            $queryBuilder->orWhere(sprintf('%s.%s LIKE ?%d', $alias, $key, $key));
-            $queryBuilder->setParameter($key, sprintf('%%s%', $filterUppercase? strtoupper($value): $value));
+            $queryBuilder->orWhere(sprintf('%s.%s LIKE :%s', $alias, $key, $key));
+            $queryBuilder->setParameter($key, sprintf('%%%s%%', $filterUppercase? strtoupper($value): $value));
         }
 
         $event = new FilterQueryEvent();
@@ -91,7 +91,7 @@ abstract class CrudController extends Controller
             'current' => $currentPage,
             'previous' => $previous,
             'next' => $next,
-            'records' => $this->getManager()->serialize($pagination->getItems()),
+            'records' => $pagination->getItems(),
         );
 
         return $this->handleView(View::create($output));
@@ -232,11 +232,13 @@ abstract class CrudController extends Controller
         }
 
         $form = $validationEvent->getForm();
+        $form->setValidator($this->container->get('validator'));
         $form->handleRequest($requestEvent->getRequest());
 
         $view = new View();
         if (!$form->isValid()) {
             $view->setData($form->getErrors());
+            $view->setStatusCode(Response::HTTP_NOT_ACCEPTABLE);
 
             return $this->handleView($view);
         }
