@@ -30,8 +30,6 @@ abstract class CrudController extends Controller
      */
     protected $manager;
 
-    protected $template;
-
     /**
      * @return \Symfonian\Indonesia\RestCrudBundle\Form\FormInterface
      */
@@ -95,10 +93,7 @@ abstract class CrudController extends Controller
         $output->setPrevious($previous);
         $output->setRecords($pagination->getItems());
 
-        $view = View::create(array('data' => $output));
-        $view->setTemplate($this->getTemplate());
-
-        return $this->handleView($view);
+        return $this->handleView(View::create(array('data' => $output)));
     }
 
     /**
@@ -118,10 +113,7 @@ abstract class CrudController extends Controller
             return $response;
         }
 
-        $view = View::create($event->getEntity());
-        $view->setTemplate($this->getTemplate());
-
-        return $this->handleView($view);
+        return $this->handleView(View::create($event->getEntity()));
     }
 
     /**
@@ -163,11 +155,7 @@ abstract class CrudController extends Controller
         if ($response = $event->getResponse()) {
             return $response;
         }
-
         $this->getManager()->delete($event->getEntity());
-
-        $view = View::create(null, Response::HTTP_NO_CONTENT);
-        $view->setTemplate($this->getTemplate());
 
         return $this->handleView(View::create(null, Response::HTTP_NO_CONTENT));
     }
@@ -177,11 +165,6 @@ abstract class CrudController extends Controller
         $this->manager = $manager;
     }
 
-    public function setTemplate($template)
-    {
-        $this->template = $template;
-    }
-
     protected function getManager()
     {
         if (! $this->manager) {
@@ -189,11 +172,6 @@ abstract class CrudController extends Controller
         }
 
         return $this->manager;
-    }
-
-    protected function getTemplate()
-    {
-        return $this->template;
     }
 
     /**
@@ -266,7 +244,6 @@ abstract class CrudController extends Controller
         $form->handleRequest($requestEvent->getRequest());
 
         $view = new View();
-        $view->setTemplate($this->getTemplate());
         if (!$form->isValid()) {
             $view->setData($form->getErrors());
             $view->setStatusCode(Response::HTTP_NOT_ACCEPTABLE);

@@ -2,11 +2,6 @@
 
 namespace Symfonian\Indonesia\RestCrudBundle\Util;
 
-use JMS\Serializer\Annotation\XmlRoot;
-
-/**
- * @XmlRoot("results")
- */
 class Paging
 {
     private $current;
