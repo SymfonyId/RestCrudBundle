@@ -13,7 +13,7 @@ class RequestFormatListener
         }
 
         $request = $event->getRequest();
-        if ('xml' === $request->getRequestFormat()) {
+        if ('html' === $request->getRequestFormat()) {
             $request->setRequestFormat('json');
         }
     }

@@ -11,12 +11,14 @@ use FOS\RestBundle\Controller\FOSRestController as Controller;
 use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Symfonian\Indonesia\CoreBundle\Toolkit\DoctrineManager\Model\EntityInterface;
+use Symfonian\Indonesia\RestCrudBundle\Event\FilterEntityEvent;
 use Symfonian\Indonesia\RestCrudBundle\Event\FilterFormEvent;
 use Symfonian\Indonesia\RestCrudBundle\Event\FilterPersistEvent;
 use Symfonian\Indonesia\RestCrudBundle\Event\FilterQueryEvent;
 use Symfonian\Indonesia\RestCrudBundle\Event\FilterRequestEvent;
 use Symfonian\Indonesia\RestCrudBundle\Event\FilterValidationEvent;
 use Symfonian\Indonesia\RestCrudBundle\SymfonianIndonesiaRestCrudEvents as Event;
+use Symfonian\Indonesia\RestCrudBundle\Util\Paging;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -87,14 +89,16 @@ abstract class CrudController extends Controller
         $previous = 1 === $currentPage? 1: $currentPage - 1;
         $next = $pagination->getTotalItemCount() > ($limit * $page) ? $currentPage + 1: $currentPage;
 
-        $output = array(
-            'current' => $currentPage,
-            'previous' => $previous,
-            'next' => $next,
-            'records' => $pagination->getItems(),
-        );
+        $output = new Paging();
+        $output->setCurrent($currentPage);
+        $output->setNext($next);
+        $output->setPrevious($previous);
+        $output->setRecords($pagination->getItems());
 
-        return $this->handleView(View::create($output));
+        $view = View::create(array('data' => $output));
+        $view->setTemplate($this->getTemplate());
+
+        return $this->handleView($view);
     }
 
     /**
@@ -104,7 +108,20 @@ abstract class CrudController extends Controller
      */
     public function detailAction($id)
     {
-        return $this->handleView(View::create($this->findOr404Error($id)));
+        $entity = $this->findOr404Error($id);
+        $event = new FilterEntityEvent();
+        $event->setEntity($entity);
+        $event->setManager($this->getManager());
+        $this->fireEvent(Event::FILTER_ENTITY, $event);
+
+        if ($response = $event->getResponse()) {
+            return $response;
+        }
+
+        $view = View::create($event->getEntity());
+        $view->setTemplate($this->getTemplate());
+
+        return $this->handleView($view);
     }
 
     /**
@@ -137,7 +154,20 @@ abstract class CrudController extends Controller
      */
     public function deleteAction($id)
     {
-        $this->getManager()->delete($this->findOr404Error($id));
+        $entity = $this->findOr404Error($id);
+        $event = new FilterEntityEvent();
+        $event->setEntity($entity);
+        $event->setManager($this->getManager());
+        $this->fireEvent(Event::FILTER_ENTITY, $event);
+
+        if ($response = $event->getResponse()) {
+            return $response;
+        }
+
+        $this->getManager()->delete($event->getEntity());
+
+        $view = View::create(null, Response::HTTP_NO_CONTENT);
+        $view->setTemplate($this->getTemplate());
 
         return $this->handleView(View::create(null, Response::HTTP_NO_CONTENT));
     }
@@ -236,6 +266,7 @@ abstract class CrudController extends Controller
         $form->handleRequest($requestEvent->getRequest());
 
         $view = new View();
+        $view->setTemplate($this->getTemplate());
         if (!$form->isValid()) {
             $view->setData($form->getErrors());
             $view->setStatusCode(Response::HTTP_NOT_ACCEPTABLE);
