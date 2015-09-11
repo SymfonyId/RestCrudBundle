@@ -2,11 +2,11 @@
 
 namespace Symfonian\Indonesia\RestCrudBundle\Event;
 
+use Symfonian\Indonesia\CoreBundle\Toolkit\DoctrineManager\Manager;
+use Symfonian\Indonesia\CoreBundle\Toolkit\DoctrineManager\Model\EntityInterface;
 use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfonian\Indonesia\CoreBundle\Toolkit\DoctrineManager\Manager;
-use Symfonian\Indonesia\CoreBundle\Toolkit\DoctrineManager\Model\EntityInterface;
 
 class FilterEntityEvent extends Event
 {
