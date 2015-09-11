@@ -10,11 +10,3 @@ services:
         class: Symfonian\Indonesia\RestCrudBundle\EventListener\RequestFormatListener
         tags:
             - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest }
-
-    symfonian_id.rest_crud.twig.render:
-        class: Symfonian\Indonesia\RestCrudBundle\Twig\RestRenderFilter
-        arguments:
-            - @request
-        scope: request
-        tags:
-            - { name: twig.extension }
