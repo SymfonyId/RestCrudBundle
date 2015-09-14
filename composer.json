@@ -31,6 +31,5 @@
         "psr-4": {
             "Symfonian\\Indonesia\\RestCrudBundle\\": ""
         }
-    },
-    "preferred-install": "dist"
+    }
 }
