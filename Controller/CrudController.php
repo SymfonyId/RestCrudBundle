@@ -241,7 +241,6 @@ abstract class CrudController extends Controller
         }
 
         $form = $validationEvent->getForm();
-        $form->setValidator($this->container->get('validator'));
         $form->handleRequest($requestEvent->getRequest());
 
         $view = new View();

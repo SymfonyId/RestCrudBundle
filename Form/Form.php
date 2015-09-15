@@ -2,9 +2,10 @@
 
 namespace Symfonian\Indonesia\RestCrudBundle\Form;
 
+use Symfonian\Indonesia\RestCrudBundle\Validator\Validator;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Collection;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 abstract class Form implements FormInterface
 {
@@ -15,7 +16,7 @@ abstract class Form implements FormInterface
     protected $errors;
 
     /**
-     * @var ValidatorInterface
+     * @var Validator
      */
     protected $validator;
 
@@ -24,8 +25,9 @@ abstract class Form implements FormInterface
      */
     protected $constraints;
 
-    public function __construct()
+    public function __construct(Validator $validator)
     {
+        $this->validator = $validator;
         $this->configure();
     }
 
@@ -43,9 +45,22 @@ abstract class Form implements FormInterface
         return array($this->getName() => $output);
     }
 
-    protected function addField($name, $type = 'string', $description = '')
+    public function addConstraint($field, Constraint $constraint)
+    {
+        if (in_array($field, $this->fields)) {
+            $this->constraints[$field][] = $constraint;
+        }
+
+        throw new \InvalidArgumentException(sprintf('Field %s is not found.', $field));
+    }
+
+    protected function addField($name, $type = 'string', $description = '', Constraint $constraint = null)
     {
         $this->fields[$name] = array($name, $type, $description);
+
+        if ($constraint) {
+            $this->addConstraint($name, $constraint);
+        }
     }
 
     protected function addFields(array $fields)
@@ -68,7 +83,7 @@ abstract class Form implements FormInterface
 
     public function isValid()
     {
-        $this->errors = $this->validator->validate($this->data, $this->constraints);
+        $this->errors = $this->validator->isValid($this->data);
         if (count($this->errors) !== 0) {
             return false;
         }
@@ -79,16 +94,6 @@ abstract class Form implements FormInterface
     public function getErrors()
     {
         return $this->errors;
-    }
-
-    public function setValidationConstraints(Collection $collection)
-    {
-        $this->constraints = $collection;
-    }
-
-    public function setValidator(ValidatorInterface $validator)
-    {
-        $this->validator = $validator;
     }
 
     public function getData()
