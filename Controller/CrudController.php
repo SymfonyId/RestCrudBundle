@@ -74,7 +74,7 @@ abstract class CrudController extends Controller
         $filter = $request->query->get('filter', array());
         foreach ($filter as $key => $value) {
             $queryBuilder->orWhere(sprintf('%s.%s LIKE :%s', $alias, $key, $key));
-            $queryBuilder->setParameter($key, sprintf('%%%s%%', $filterUppercase? strtoupper($value): $value));
+            $queryBuilder->setParameter($key, sprintf('%%%s%%', $filterUppercase ? strtoupper($value) : $value));
         }
 
         $event = new FilterQueryEvent();
@@ -84,8 +84,8 @@ abstract class CrudController extends Controller
 
         $pagination = $this->paginate($event->getQueryBuilder(), $page, $limit);
         $currentPage = $pagination->getCurrentPageNumber();
-        $previous = 1 === $currentPage? 1: $currentPage - 1;
-        $next = $pagination->getTotalItemCount() > ($limit * $page) ? $currentPage + 1: $currentPage;
+        $previous = 1 === $currentPage ? 1 : $currentPage - 1;
+        $next = $pagination->getTotalItemCount() > ($limit * $page) ? $currentPage + 1 : $currentPage;
 
         $output = new Paging();
         $output->setCurrent($currentPage);
@@ -167,7 +167,7 @@ abstract class CrudController extends Controller
 
     protected function getManager()
     {
-        if (! $this->manager) {
+        if (!$this->manager) {
             throw new \RuntimeException('You must override `getManager()` on Controller or use Crud annotation to define the manager.');
         }
 
@@ -178,6 +178,7 @@ abstract class CrudController extends Controller
      * @param QueryBuilder $queryBuilder
      * @param $page
      * @param $limit
+     *
      * @return \Knp\Component\Pager\Pagination\AbstractPagination
      */
     protected function paginate(QueryBuilder $queryBuilder, $page, $limit)

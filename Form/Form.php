@@ -51,7 +51,7 @@ abstract class Form implements FormInterface
     protected function addFields(array $fields)
     {
         foreach ($fields as $field) {
-            $this->addField($field['name'], isset($field['type'])?: 'string', isset($field['description'])?: '');
+            $this->addField($field['name'], isset($field['type']) ?: 'string', isset($field['description']) ?: '');
         }
     }
 

@@ -35,5 +35,5 @@ class AnnotationReader
                 $controller->setTemplate($annotation->getTemplate());
             }
         }
-}
+    }
 }
