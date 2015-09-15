@@ -51,7 +51,7 @@ abstract class Form implements FormInterface
         throw new \InvalidArgumentException(sprintf('Field %s is not found.', $field));
     }
 
-    protected function addField($name, $type = 'string', $description = '', Constraint $constraint = null)
+    protected function addField($name, $type = 'string', $description = '', $constraint = null)
     {
         $this->fields[$name] = array($name, $type, $description);
 
@@ -60,7 +60,15 @@ abstract class Form implements FormInterface
         }
 
         if ($constraint) {
-            $this->addConstraint($name, $constraint);
+            if ($constraint instanceof Constraint) {
+                $this->addConstraint($name, $constraint);
+            }
+
+            if (is_array($constraint)) {
+                foreach ($constraint as $validation) {
+                    $this->addConstraint($name, $validation);
+                }
+            }
         }
     }
 
