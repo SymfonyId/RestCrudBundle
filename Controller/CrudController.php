@@ -17,6 +17,7 @@ use Symfonian\Indonesia\RestCrudBundle\Event\FilterPersistEvent;
 use Symfonian\Indonesia\RestCrudBundle\Event\FilterQueryEvent;
 use Symfonian\Indonesia\RestCrudBundle\Event\FilterRequestEvent;
 use Symfonian\Indonesia\RestCrudBundle\Event\FilterValidationEvent;
+use Symfonian\Indonesia\RestCrudBundle\Form\FormInterface;
 use Symfonian\Indonesia\RestCrudBundle\SymfonianIndonesiaRestCrudEvents as Event;
 use Symfonian\Indonesia\RestCrudBundle\Util\Paging;
 use Symfony\Component\HttpFoundation\Request;
@@ -31,9 +32,9 @@ abstract class CrudController extends Controller
     protected $manager;
 
     /**
-     * @return \Symfonian\Indonesia\RestCrudBundle\Form\FormInterface
+     * @var \Symfonian\Indonesia\RestCrudBundle\Form\FormInterface
      */
-    abstract protected function getForm();
+    protected $form;
 
     /**
      * @Get("/form")
@@ -165,6 +166,11 @@ abstract class CrudController extends Controller
         $this->manager = $manager;
     }
 
+    public function setForm($form)
+    {
+        $this->form = $form;
+    }
+
     protected function getManager()
     {
         if (!$this->manager) {
@@ -172,6 +178,28 @@ abstract class CrudController extends Controller
         }
 
         return $this->manager;
+    }
+
+    /**
+     * @return FormInterface
+     */
+    protected function getForm()
+    {
+        if (!$this->form) {
+            throw new \RuntimeException('You must override `getForm()` on Controller or use Crud annotation to define the form.');
+        }
+
+        try {
+            $formObject = $this->container->get($this->form);
+        } catch (\Exception $ex) {
+            if ($this->form instanceof FormInterface) {
+                $formObject = new $this->form();
+            } else {
+                throw new \InvalidArgumentException(sprintf('%s class is must implement \Symfonian\Indonesia\RestCrudBundle\Form\FormInterface'));
+            }
+        }
+
+        return $formObject;
     }
 
     /**

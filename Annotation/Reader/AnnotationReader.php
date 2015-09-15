@@ -32,7 +32,7 @@ class AnnotationReader
         foreach ($this->reader->getClassAnnotations($reflectionObject) as $annotation) {
             if ($annotation instanceof Crud) {
                 $controller->setManager($annotation->getManager());
-                $controller->setTemplate($annotation->getTemplate());
+                $controller->setForm($annotation->getForm());
             }
         }
     }

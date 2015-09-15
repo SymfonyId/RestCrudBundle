@@ -8,14 +8,14 @@ namespace Symfonian\Indonesia\RestCrudBundle\Annotation\Schema;
  */
 class Crud
 {
-    private $template;
+    private $form;
 
     private $manager;
 
     public function __construct(array $data)
     {
-        if (isset($data['template'])) {
-            $this->template = $data['template'];
+        if (isset($data['form'])) {
+            $this->form = $data['form'];
         }
 
         if (isset($data['manager'])) {
@@ -23,9 +23,9 @@ class Crud
         }
     }
 
-    public function getTemplate()
+    public function getForm()
     {
-        return $this->template;
+        return $this->form;
     }
 
     public function getManager()
