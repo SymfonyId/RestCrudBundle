@@ -14,6 +14,10 @@ class Crud
 
     public function __construct(array $data)
     {
+        if (isset($data['value'])) {
+            $this->manager = $data['value'];
+        }
+
         if (isset($data['form'])) {
             $this->form = $data['form'];
         }

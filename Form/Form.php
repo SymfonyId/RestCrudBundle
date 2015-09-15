@@ -44,8 +44,10 @@ abstract class Form implements FormInterface
 
     public function addConstraint($field, Constraint $constraint)
     {
-        if (in_array($field, $this->fields)) {
+        if (in_array($field, array_keys($this->fields))) {
             $this->constraints[$field][] = $constraint;
+
+            return;
         }
 
         throw new \InvalidArgumentException(sprintf('Field %s is not found.', $field));

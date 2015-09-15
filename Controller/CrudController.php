@@ -171,13 +171,16 @@ abstract class CrudController extends Controller
         $this->form = $form;
     }
 
+    /**
+     * @return \Symfonian\Indonesia\CoreBundle\Toolkit\DoctrineManager\Manager
+     */
     protected function getManager()
     {
         if (!$this->manager) {
             throw new \RuntimeException('You must override `getManager()` on Controller or use Crud annotation to define the manager.');
         }
 
-        return $this->manager;
+        return $this->container->get($this->manager);
     }
 
     /**
@@ -195,7 +198,7 @@ abstract class CrudController extends Controller
             if ($this->form instanceof FormInterface) {
                 $formObject = new $this->form();
             } else {
-                throw new \InvalidArgumentException(sprintf('%s class is must implement \Symfonian\Indonesia\RestCrudBundle\Form\FormInterface'));
+                throw new \InvalidArgumentException(sprintf('%s class is must implement \Symfonian\Indonesia\RestCrudBundle\Form\FormInterface', $this->form));
             }
         }
 
