@@ -93,6 +93,9 @@ abstract class Form implements FormInterface
         return true;
     }
 
+    /**
+     * @return Constraint | null
+     */
     public function defaultConstraints()
     {
     }
