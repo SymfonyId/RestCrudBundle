@@ -55,6 +55,10 @@ abstract class Form implements FormInterface
     {
         $this->fields[$name] = array($name, $type, $description);
 
+        if (null !== $this->defaultConstraints()) {
+            $this->addConstraint($name, $this->defaultConstraints());
+        }
+
         if ($constraint) {
             $this->addConstraint($name, $constraint);
         }
@@ -87,6 +91,10 @@ abstract class Form implements FormInterface
         }
 
         return true;
+    }
+
+    public function defaultConstraints()
+    {
     }
 
     public function getErrors()

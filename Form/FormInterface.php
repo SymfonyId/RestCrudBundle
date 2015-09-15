@@ -20,5 +20,7 @@ interface FormInterface
 
     public function getName();
 
+    public function defaultConstraints();
+
     public function handleRequest(Request $request);
 }
