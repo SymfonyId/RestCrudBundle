@@ -12,10 +12,6 @@ interface FormInterface
 
     public function configure();
 
-    public function setValidator(ValidatorInterface $validator);
-
-    public function setValidationConstraints(Collection $collection);
-
     public function isValid();
 
     public function getErrors();
