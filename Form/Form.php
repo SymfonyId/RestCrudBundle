@@ -15,15 +15,12 @@ abstract class Form implements FormInterface
 
     protected $errors;
 
+    protected $constraints;
+
     /**
      * @var Validator
      */
     protected $validator;
-
-    /**
-     * @var Collection
-     */
-    protected $constraints;
 
     public function __construct(Validator $validator)
     {
@@ -83,6 +80,7 @@ abstract class Form implements FormInterface
 
     public function isValid()
     {
+        $this->validator->setConstraints(new Collection($this->constraints));
         $this->errors = $this->validator->isValid($this->data);
         if (count($this->errors) !== 0) {
             return false;

@@ -6,6 +6,11 @@ services:
         tags:
             - { name: kernel.event_listener, event: kernel.controller, method: onKernelController, priority: -255 }
 
+    symfonian_id.rest_crud.validator:
+        class: Symfonian\Indonesia\RestCrudBundle\Validator\Validator
+        arguments:
+            - @validator
+
     kernel.listener.request_format:
         class: Symfonian\Indonesia\RestCrudBundle\EventListener\RequestFormatListener
         tags:

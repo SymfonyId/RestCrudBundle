@@ -5,14 +5,17 @@ namespace Symfonian\Indonesia\RestCrudBundle\Validator;
 use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-class Validator
+final class Validator
 {
     /**
      * @var ValidatorInterface
      */
-    protected $validator;
+    private $validator;
 
-    protected $constraints;
+    /**
+     * @var Collection
+     */
+    private $constraints;
 
     public function __construct(ValidatorInterface $validator)
     {
